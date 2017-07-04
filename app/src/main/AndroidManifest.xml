@@ -30,7 +30,12 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".DetailRunActivity" />
-        <activity android:name=".HistoryActivity"></activity>
+        <activity android:name=".HistoryActivity"/>
+
+        <provider
+            android:authorities="fr.altoine.jnogging"
+            android:name=".data.RunContentProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>
