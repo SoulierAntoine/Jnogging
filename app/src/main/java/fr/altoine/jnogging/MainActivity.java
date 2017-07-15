@@ -2,8 +2,10 @@ package fr.altoine.jnogging;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -76,6 +78,49 @@ public class MainActivity extends AppCompatActivity implements
 
         mApiClient.connect();
     }
+
+    /* @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean previouslyStarted = prefs.getBoolean(getString(R.string.pref_first_run_key), false);
+
+        if(!previouslyStarted) {
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putBoolean(getString(R.string.pref_first_run_key), Boolean.TRUE);
+            edit.commit();
+            showHelp();
+        }
+    }
+
+    public void showHelp() {
+        Intent mainAct = new Intent(this, MaterialTutorialActivity.class);
+        mainAct.putParcelableArrayListExtra(MaterialTutorialActivity.MATERIAL_TUTORIAL_ARG_TUTORIAL_ITEMS, getTutorialItems(this));
+        startActivityForResult(mainAct, REQUEST_CODE);
+    }
+
+    private ArrayList<TutorialItem> getTutorialItems(Context context) {
+        TutorialItem tutorialItem1 = new TutorialItem(
+                context.getString(R.string.slide_1_african_story_books),
+                context.getString(R.string.slide_1_african_story_books_subtitle),
+                R.color.slide_1,
+                R.drawable.tut_page_1_front,
+                R.drawable.tut_page_1_background
+        );
+
+        TutorialItem tutorialItem2 = new TutorialItem(
+                context.getString(R.string.slide_1_african_story_books),
+                context.getString(R.string.slide_1_african_story_books_subtitle),
+                R.color.slide_1, R.drawable.gif_drawable, true
+        );
+
+        ArrayList<TutorialItem> tutorialItems = new ArrayList<>();
+        tutorialItems.add(tutorialItem1);
+        tutorialItems.add(tutorialItem2);
+
+        return tutorialItems;
+    } */
 
     @Override
     public void onClick(View v) {
@@ -186,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_help:
                 // TODO: implement help action
                 Toast.makeText(this, "TODO: implement help action", Toast.LENGTH_SHORT).show();
+                // showHelp();
                 break;
             default:
                 break;
