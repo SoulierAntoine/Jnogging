@@ -3,11 +3,15 @@ package fr.altoine.jnogging;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // setTheme(R.style.JnoggingTheme);
 
         mStartButton = (Button) findViewById(R.id.btn_start);
         mStartButton.setOnClickListener(this);
@@ -65,6 +70,15 @@ public class MainActivity extends AppCompatActivity implements
 //                Log.v(TAG, "Last digit : " + String.valueOf(miliseconds % 10));
             }
         });
+
+        /* ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(
+                    new ColorDrawable(ResourcesCompat.getColor(getResources(), R.color.grey, null))
+            );
+        } */
+
+
 
 //        mRunChronometer.setFormat(
 //                getString(R.string.chronometer_format)

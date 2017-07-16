@@ -24,6 +24,7 @@ public class RunDbHelper extends SQLiteOpenHelper {
         final String CREATE_TABLE_RUNS = "CREATE TABLE " + RunsEntry.TABLE_NAME + " (" +
                 RunsEntry._ID                            + " INTEGER PRIMARY KEY, " +
                 RunsEntry.COLUMN_DISTANCE                + " INTEGER NOT NULL, " +
+                RunsEntry.COLUMN_SPEED                   + " INTEGER NOT NULL, " +
                 RunsEntry.COLUMN_START_TIME              + " DATETIME NOT NULL, " +
                 RunsEntry.COLUMN_END_TIME                + " DATETIME NOT NULL);";
 

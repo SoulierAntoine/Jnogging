@@ -29,6 +29,7 @@ public class RunContract {
         public static final String TABLE_NAME = "runs";
 
         public static final String COLUMN_DISTANCE = "time";
+        public static final String COLUMN_SPEED = "speed";
         public static final String COLUMN_START_TIME = "start_time";
         public static final String COLUMN_END_TIME = "end_time";
     }

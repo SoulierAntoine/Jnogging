@@ -21,8 +21,8 @@ public class HistoryActivity extends AppCompatActivity implements RunsAdapter.Ru
         RunsAdapter runsAdapter = new RunsAdapter(this);
         runsAdapter.setRunsData(FakeRunsData.getFakeData());
 
-        Calendar calendar = Calendar.getInstance();
-        calendar
+        //Calendar calendar = Calendar.getInstance();
+        //calendar
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
@@ -36,7 +36,7 @@ public class HistoryActivity extends AppCompatActivity implements RunsAdapter.Ru
     public void onClick(String data) {
         // TODO: go on detail
         Toast.makeText(this, "TODO: go on detail", Toast.LENGTH_SHORT).show();
-        Intent goToDetail = new Intent(HistoryActivity.this, DetailRunActivity.class);
-        goToDetail.putExtra()
+        //Intent goToDetail = new Intent(HistoryActivity.this, DetailRunActivity.class);
+        //goToDetail.putExtra()
     }
 }

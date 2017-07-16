@@ -1,5 +1,6 @@
 package fr.altoine.jnogging;
 
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterViewHolder> {
 
     private String mRunsData[];
+    private Cursor mCursor;
     final private RunsAdapterOnClickListener mClickListener;
 
     public void setRunsData(String[] runsData) {
@@ -43,6 +45,8 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
 
     @Override
     public void onBindViewHolder(RunsAdapterViewHolder holder, int position) {
+        mCursor.moveToPosition(position);
+
         String runData = mRunsData[position];
         holder.descriptionTextView.setText(runData);
     }

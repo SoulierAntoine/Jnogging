@@ -7,7 +7,7 @@
 
     <!-- Jnogging colors -->
     <color name="colorGrey">#646864</color>
-    <color name="colorRed">#E55839</color>
+    <color name="colorRed">#e55839</color>
 
     <!-- Material Design colors -->
     <color name="red">#F44336</color>
