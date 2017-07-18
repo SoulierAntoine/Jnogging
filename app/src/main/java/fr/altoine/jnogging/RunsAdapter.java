@@ -47,11 +47,14 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
     public void onBindViewHolder(RunsAdapterViewHolder holder, int position) {
         mCursor.moveToPosition(position);
         int distance = mCursor.getInt(MainActivity.INDEX_RUN_DISTANCE);
-        int speed = mCursor.getInt(MainActivity.INDEX_RUN_SPEED);
+        float speed = mCursor.getFloat(MainActivity.INDEX_RUN_SPEED);
+//        String startTime = mCursor.getString(MainActivity.INDEX_RUN_START_TIME);
+        int timeSpentRunning = mCursor.getInt(MainActivity.INDEX_TIME_SPENT_RUNNING);
+
 
         holder.distanceTextView.setText(String.valueOf(distance));
         holder.speedTextView.setText(String.valueOf(speed));
-        holder.timeTextView.setText("TODO");
+        holder.timeTextView.setText(String.valueOf(timeSpentRunning));
 //        String runData = mRunsData[position];
 //        holder.descriptionTextView.setText(runData);
     }
@@ -93,6 +96,9 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
 
         public RunsAdapterViewHolder(View itemView) {
             super(itemView);
+//            distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance_value);
+//            timeTextView = (TextView) itemView.findViewById(R.id.tv_time_value);
+//            speedTextView = (TextView) itemView.findViewById(R.id.tv_speed_value);
             distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance);
             timeTextView = (TextView) itemView.findViewById(R.id.tv_time);
             speedTextView = (TextView) itemView.findViewById(R.id.tv_speed);

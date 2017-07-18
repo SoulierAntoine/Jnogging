@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import fr.altoine.jnogging.data.RunContract;
 
@@ -33,7 +34,7 @@ public class FakeRunsData {
         calendar.set(GregorianCalendar.SECOND, 0);
 
         Date dateStart = calendar.getTime();
-        int minutesRunning = rand(15, 90);
+        int minutesRunning = rand(45, 90);
 
         calendar.add(GregorianCalendar.MINUTE, minutesRunning);
         Date dateEnd = calendar.getTime();
@@ -51,20 +52,29 @@ public class FakeRunsData {
         Date[] subsequentDates = getRandomSubsequentDate();
         DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
 
-        long timeSpentRunningInSeconds = (subsequentDates[0].getTime() - subsequentDates[1].getTime()) / 1000;
-        float speedInKilometerPerHours = randomDistance / (timeSpentRunningInSeconds / 60);
+        long diffBetweenDatesInMillis = (subsequentDates[1].getTime() - subsequentDates[0].getTime());
+        long timeSpentRunningInMinutes = TimeUnit.MILLISECONDS.toMinutes(diffBetweenDatesInMillis);
+        float timeSpentRunningInHours = (float) timeSpentRunningInMinutes / 60;
+
+        double speedInKilometerPerHours = 0.0;
+        if (timeSpentRunningInHours != 0)
+            speedInKilometerPerHours = randomDistance / timeSpentRunningInHours;
+
+        // Round the number to 2 number after decimal point
+        speedInKilometerPerHours = Math.floor(speedInKilometerPerHours * 100) / 100;
+
 
         testValues.put(RunContract.RunsEntry.COLUMN_DISTANCE, randomDistance);
         testValues.put(RunContract.RunsEntry.COLUMN_START_TIME, dateFormat.format(subsequentDates[0]));
-        testValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,  dateFormat.format(subsequentDates[1]));
-        testValues.put(RunContract.RunsEntry.COLUMN_SPEED,  String.valueOf(speedInKilometerPerHours));
+        testValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,  timeSpentRunningInMinutes);
+        testValues.put(RunContract.RunsEntry.COLUMN_SPEED,  speedInKilometerPerHours);
 
         return testValues;
     }
 
     public static void insertFakeData(Context context) {
         List<ContentValues> fakeValues = new ArrayList<ContentValues>();
-        for (int i=0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
             fakeValues.add(FakeRunsData.createFakeData());
 
         context.getContentResolver().bulkInsert(RunContract.RunsEntry.CONTENT_URI, fakeValues.toArray(new ContentValues[10]));
@@ -72,17 +82,5 @@ public class FakeRunsData {
 
     public static int rand(int min, int max) {
         return (int)(Math.random() * (max - min)) + min;
-    }
-
-    public static String[] getFakeData() {
-        return new String[]{
-                "30min 7km 14km/h",
-                "60min 9km 9km/h",
-                "50min 10km 12km/h",
-                "90min 10km 6.6km/h",
-                "40min 8km 12km/h",
-                "50min 12km 14.4km/h",
-                "120min 21km 10.5km/h",
-        };
     }
 }

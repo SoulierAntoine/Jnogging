@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements
     public static final int INDEX_RUN_DISTANCE = 0;
     public static final int INDEX_RUN_SPEED = 1;
     public static final int INDEX_RUN_START_TIME = 2;
-    public static final int INDEX_RUN_END_TIME = 3;
+    public static final int INDEX_TIME_SPENT_RUNNING = 3;
 
 
     private final String TAG = MainActivity.class.getSimpleName();
