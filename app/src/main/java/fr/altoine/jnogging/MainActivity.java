@@ -2,16 +2,10 @@ package fr.altoine.jnogging;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -28,10 +22,26 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 
+import fr.altoine.jnogging.data.RunContract;
+
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+
+
+    public static final String[] RUNS_PROJECTION = {
+            RunContract.RunsEntry.COLUMN_DISTANCE,
+            RunContract.RunsEntry.COLUMN_SPEED,
+            RunContract.RunsEntry.COLUMN_START_TIME,
+            RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,
+    };
+
+    public static final int INDEX_RUN_DISTANCE = 0;
+    public static final int INDEX_RUN_SPEED = 1;
+    public static final int INDEX_RUN_START_TIME = 2;
+    public static final int INDEX_RUN_END_TIME = 3;
+
 
     private final String TAG = MainActivity.class.getSimpleName();
     private Button mStartButton;

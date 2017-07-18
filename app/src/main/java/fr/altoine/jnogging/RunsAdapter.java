@@ -13,14 +13,14 @@ import android.widget.TextView;
 
 public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterViewHolder> {
 
-    private String mRunsData[];
+//    private String mRunsData[];
     private Cursor mCursor;
     final private RunsAdapterOnClickListener mClickListener;
 
-    public void setRunsData(String[] runsData) {
+    /* public void setRunsData(String[] runsData) {
         mRunsData = runsData;
         notifyDataSetChanged();
-    }
+    } */
 
 
     public interface RunsAdapterOnClickListener {
@@ -46,34 +46,56 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
     @Override
     public void onBindViewHolder(RunsAdapterViewHolder holder, int position) {
         mCursor.moveToPosition(position);
+        int distance = mCursor.getInt(MainActivity.INDEX_RUN_DISTANCE);
+        int speed = mCursor.getInt(MainActivity.INDEX_RUN_SPEED);
 
-        String runData = mRunsData[position];
-        holder.descriptionTextView.setText(runData);
+        holder.distanceTextView.setText(String.valueOf(distance));
+        holder.speedTextView.setText(String.valueOf(speed));
+        holder.timeTextView.setText("TODO");
+//        String runData = mRunsData[position];
+//        holder.descriptionTextView.setText(runData);
     }
 
 
     @Override
     public int getItemCount() {
-        if (mRunsData == null) return  0;
-        return mRunsData.length;
+        if (null == mCursor) return 0;
+        return mCursor.getCount();
+    }
+
+
+    /**
+     * Swaps the cursor used by the RunsData for its data.
+     * Called when we have a new set of data.
+     *
+     * @param newCursor the new cursor to use as RunsAdapter's data source
+     */
+    void swapCursor(Cursor newCursor) {
+        mCursor = newCursor;
+        notifyDataSetChanged();
     }
 
 
     class RunsAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView descriptionTextView;
+        TextView distanceTextView;
+        TextView timeTextView;
+        TextView speedTextView;
 
 
         @Override
         public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            String runData = mRunsData[adapterPosition];
-            mClickListener.onClick(runData);
+            mClickListener.onClick("TODO");
+//            int adapterPosition = getAdapterPosition();
+//            String runData = mRunsData[adapterPosition];
+//            mClickListener.onClick(runData);
         }
 
 
         public RunsAdapterViewHolder(View itemView) {
             super(itemView);
-            descriptionTextView = (TextView) itemView.findViewById(R.id.tv_description);
+            distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance);
+            timeTextView = (TextView) itemView.findViewById(R.id.tv_time);
+            speedTextView = (TextView) itemView.findViewById(R.id.tv_speed);
             itemView.setOnClickListener(this);
         }
     }

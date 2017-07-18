@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+    <dimen name="run_history_padding_horizontal">16dp</dimen>
+    <dimen name="run_history_padding_vertical">12dp</dimen>
+    <dimen name="run_history_text_size">28sp</dimen>
+
+    <dimen name="run_history_margin_to_parent">4dp</dimen>
+    <dimen name="run_history_margin_to_value">4dp</dimen>
+    <dimen name="run_history_label_size">14sp</dimen>
+
+    <dimen name="loading_indicator_size">42dp</dimen>
+
+    <dimen name="list_item_date_left_margin">16dp</dimen>
+    <dimen name="list_item_date_start_margin">@dimen/list_item_date_left_margin</dimen>
+
+</resources>

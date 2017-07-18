@@ -6,7 +6,6 @@ import android.content.Context;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -20,27 +19,29 @@ import fr.altoine.jnogging.data.RunContract;
  */
 
 public class FakeRunsData {
-    public static Date[] getRandomSubsequentDate() {
+    private static Date[] getRandomSubsequentDate() {
         GregorianCalendar calendar = new GregorianCalendar(TimeZone.getDefault());
         int year = rand(2014, 2016);
         int day = rand(1, calendar.getActualMaximum(GregorianCalendar.DAY_OF_YEAR));
         int hour = rand(0, calendar.getActualMaximum(GregorianCalendar.HOUR_OF_DAY));
+        int minute = rand(0, calendar.getActualMaximum(GregorianCalendar.MINUTE));
 
-        calendar.set(GregorianCalendar.HOUR_OF_DAY, hour);
         calendar.set(GregorianCalendar.YEAR, year);
         calendar.set(GregorianCalendar.DAY_OF_YEAR, day);
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, hour);
+        calendar.set(GregorianCalendar.MINUTE, minute);
+        calendar.set(GregorianCalendar.SECOND, 0);
 
         Date dateStart = calendar.getTime();
         int minutesRunning = rand(15, 90);
 
-        calendar.add(GregorianCalendar.HOUR_OF_DAY, minutesRunning);
+        calendar.add(GregorianCalendar.MINUTE, minutesRunning);
         Date dateEnd = calendar.getTime();
 
-        Date[] dates = {dateStart, dateEnd};
-        return dates;
+        return new Date[]{dateStart, dateEnd};
     }
 
-    public static ContentValues createFakeData() {
+    private static ContentValues createFakeData() {
         ContentValues testValues = new ContentValues();
 
         int minimumDistance = 5;
@@ -50,12 +51,12 @@ public class FakeRunsData {
         Date[] subsequentDates = getRandomSubsequentDate();
         DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
 
-        long timeSpentRunningInSeconds = (subsequentDates[1].getTime() - subsequentDates[2].getTime()) / 1000;
+        long timeSpentRunningInSeconds = (subsequentDates[0].getTime() - subsequentDates[1].getTime()) / 1000;
         float speedInKilometerPerHours = randomDistance / (timeSpentRunningInSeconds / 60);
 
         testValues.put(RunContract.RunsEntry.COLUMN_DISTANCE, randomDistance);
         testValues.put(RunContract.RunsEntry.COLUMN_START_TIME, dateFormat.format(subsequentDates[0]));
-        testValues.put(RunContract.RunsEntry.COLUMN_END_TIME,  dateFormat.format(subsequentDates[1]));
+        testValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,  dateFormat.format(subsequentDates[1]));
         testValues.put(RunContract.RunsEntry.COLUMN_SPEED,  String.valueOf(speedInKilometerPerHours));
 
         return testValues;
