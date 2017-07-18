@@ -22,25 +22,10 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 
-import fr.altoine.jnogging.data.RunContract;
-
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-
-
-    public static final String[] RUNS_PROJECTION = {
-            RunContract.RunsEntry.COLUMN_DISTANCE,
-            RunContract.RunsEntry.COLUMN_SPEED,
-            RunContract.RunsEntry.COLUMN_START_TIME,
-            RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,
-    };
-
-    public static final int INDEX_RUN_DISTANCE = 0;
-    public static final int INDEX_RUN_SPEED = 1;
-    public static final int INDEX_RUN_START_TIME = 2;
-    public static final int INDEX_TIME_SPENT_RUNNING = 3;
 
 
     private final String TAG = MainActivity.class.getSimpleName();
@@ -172,9 +157,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mCurrentState = STATE_IDLE;
         mRestartButton.setVisibility(View.INVISIBLE);
-        mStartButton.setText(
-                getString(R.string.start_run)
-        );
+        mStartButton.setText(getString(R.string.start_run));
 
         Toast.makeText(this, "Time spent running : " + String.valueOf(SystemClock.elapsedRealtime() - mRunChronometer.getBase()) + "ms.", Toast.LENGTH_LONG).show();
     }
@@ -183,15 +166,11 @@ public class MainActivity extends AppCompatActivity implements
         mRunChronometer.setBase(SystemClock.elapsedRealtime());
         mRunChronometer.start();
 
-        if (mRunChronometer.getVisibility() == View.INVISIBLE)
-            mRunChronometer.setVisibility(View.VISIBLE);
         if (mRestartButton.getVisibility() == View.INVISIBLE)
             mRestartButton.setVisibility(View.VISIBLE);
 
         mCurrentState = STATE_RUNNING;
-        mStartButton.setText(
-                getString(R.string.stop_run)
-        );
+        mStartButton.setText(getString(R.string.stop_run));
     }
 
     @Override

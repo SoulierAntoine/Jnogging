@@ -1,6 +1,7 @@
 package fr.altoine.jnogging;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +15,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import fr.altoine.jnogging.data.RunContract;
+import fr.altoine.jnogging.data.RunDbHelper;
+import fr.altoine.jnogging.utils.Constants;
 import fr.altoine.jnogging.utils.FakeRunsData;
 
 public class HistoryActivity extends AppCompatActivity implements
@@ -44,7 +47,16 @@ public class HistoryActivity extends AppCompatActivity implements
         mRunsHistory.setLayoutManager(layoutManager);
         mRunsHistory.setAdapter(mRunsAdapter);
 
-        FakeRunsData.insertFakeData(HistoryActivity.this);
+        if (BuildConfig.DEBUG) {
+            SQLiteDatabase db;
+            db = new RunDbHelper(this).getReadableDatabase();
+            Cursor cursor = db.query(RunContract.RunsEntry.TABLE_NAME, Constants.RUNS_PROJECTION, null, null, null, null, null);
+            if (cursor.getCount() == 0)
+                FakeRunsData.insertFakeData(HistoryActivity.this);
+
+            cursor.close();
+        }
+
         getSupportLoaderManager().initLoader(ID_RUNS_LOADER, null, this);
         showLoading();
     }
@@ -72,11 +84,11 @@ public class HistoryActivity extends AppCompatActivity implements
         switch (id) {
             case ID_RUNS_LOADER:
                 Uri runsUri = RunContract.RunsEntry.CONTENT_URI;
-                String sortOrder = RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING + " ASC";
+                String sortOrder = RunContract.RunsEntry.COLUMN_START_TIME + " DESC";
                 return new CursorLoader(
                         this,
                         runsUri,
-                        MainActivity.RUNS_PROJECTION,
+                        Constants.RUNS_PROJECTION,
                         null,
                         null,
                         sortOrder

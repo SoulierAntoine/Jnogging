@@ -6,13 +6,19 @@
     <dimen name="run_history_padding_vertical">12dp</dimen>
     <dimen name="run_history_text_size">28sp</dimen>
 
+    <dimen name="run_history_margin_top_to_parent">10dp</dimen>
     <dimen name="run_history_margin_to_parent">4dp</dimen>
     <dimen name="run_history_margin_to_value">4dp</dimen>
     <dimen name="run_history_label_size">14sp</dimen>
 
     <dimen name="loading_indicator_size">42dp</dimen>
 
-    <dimen name="list_item_date_left_margin">16dp</dimen>
-    <dimen name="list_item_date_start_margin">@dimen/list_item_date_left_margin</dimen>
+    <dimen name="chronometer_margins">25dp</dimen>
+    <dimen name="chronometer_text_size">35sp</dimen>
 
+    <dimen name="start_running_margin_bottom">20dp</dimen>
+    <dimen name="start_running_text_size">18sp</dimen>
+
+    <dimen name="restart_height">40dp</dimen>
+    <dimen name="restart_text_size">13sp</dimen>
 </resources>

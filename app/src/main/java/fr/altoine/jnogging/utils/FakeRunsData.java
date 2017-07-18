@@ -42,6 +42,7 @@ public class FakeRunsData {
         return new Date[]{dateStart, dateEnd};
     }
 
+
     private static ContentValues createFakeData() {
         ContentValues testValues = new ContentValues();
 

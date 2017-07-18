@@ -46,34 +46,48 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.2" />
-        <!--app:layout_constraintGuide_begin="5dp" />-->
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/guideline"
         app:layout_constraintRight_toLeftOf="@+id/ll_speed"
         app:layout_constraintHorizontal_bias="0.2"
         android:layout_marginTop="@dimen/run_history_margin_to_parent">
-        <!--app:layout_constraintLeft_toRightOf="@+id/ll_distance"-->
 
         <TextView
-            android:id="@+id/tv_time"
+            android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="60"
-            android:textSize="@dimen/run_history_text_size"/>
-        <TextView
-            android:id="@+id/tv_label_time"
-            tools:text="min"
-            android:text="@string/label_time"
+            tools:text="12/09/2015 10h30"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textSize="@dimen/run_history_label_size"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/run_history_label_size"
-            app:layout_constraintLeft_toRightOf="@+id/tv_time"
-            android:layout_marginLeft="@dimen/run_history_margin_to_value"
-            android:layout_marginStart="@dimen/run_history_margin_to_value" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="60"
+                android:textSize="@dimen/run_history_label_size"/>
+
+            <TextView
+                android:id="@+id/tv_label_time"
+                tools:text="min"
+                android:text="@string/label_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/run_history_label_size"
+                app:layout_constraintLeft_toRightOf="@+id/tv_time"
+                android:layout_marginLeft="@dimen/run_history_margin_to_value"
+                android:layout_marginStart="@dimen/run_history_margin_to_value" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -85,7 +99,7 @@
         android:layout_marginRight="@dimen/run_history_margin_to_parent"
         android:layout_marginEnd="@dimen/run_history_margin_to_parent"
         android:layout_marginTop="@dimen/run_history_margin_to_parent">
-        
+
         <TextView
             android:id="@+id/tv_speed"
             tools:text="14"

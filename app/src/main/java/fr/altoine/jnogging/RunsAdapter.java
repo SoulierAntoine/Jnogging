@@ -7,6 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import fr.altoine.jnogging.utils.Constants;
+
 /**
  * Created by soulierantoine on 03/07/2017.
  */
@@ -46,17 +53,29 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
     @Override
     public void onBindViewHolder(RunsAdapterViewHolder holder, int position) {
         mCursor.moveToPosition(position);
-        int distance = mCursor.getInt(MainActivity.INDEX_RUN_DISTANCE);
-        float speed = mCursor.getFloat(MainActivity.INDEX_RUN_SPEED);
-//        String startTime = mCursor.getString(MainActivity.INDEX_RUN_START_TIME);
-        int timeSpentRunning = mCursor.getInt(MainActivity.INDEX_TIME_SPENT_RUNNING);
+        int distance = mCursor.getInt(Constants.INDEX_RUN_DISTANCE);
+        float speed = mCursor.getFloat(Constants.INDEX_RUN_SPEED);
+        int timeSpentRunning = mCursor.getInt(Constants.INDEX_TIME_SPENT_RUNNING);
+        String startTime = mCursor.getString(Constants.INDEX_RUN_START_TIME);
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss", Locale.getDefault());
+        Date formattedDate = null;
+        try {
+            formattedDate = dateFormat.parse(startTime);
+            dateFormat = new SimpleDateFormat("dd/mm/yyyy", Locale.getDefault());
+//            dateFormat = new SimpleDateFormat("dd/mm/yyyy HH:mm", Locale.getDefault());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        String displayedDate = startTime;
+        if (formattedDate != null)
+            displayedDate = dateFormat.format(formattedDate);
 
         holder.distanceTextView.setText(String.valueOf(distance));
         holder.speedTextView.setText(String.valueOf(speed));
         holder.timeTextView.setText(String.valueOf(timeSpentRunning));
-//        String runData = mRunsData[position];
-//        holder.descriptionTextView.setText(runData);
+        holder.dateTextView.setText(displayedDate);
     }
 
 
@@ -83,6 +102,7 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
         TextView distanceTextView;
         TextView timeTextView;
         TextView speedTextView;
+        TextView dateTextView;
 
 
         @Override
@@ -102,6 +122,7 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
             distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance);
             timeTextView = (TextView) itemView.findViewById(R.id.tv_time);
             speedTextView = (TextView) itemView.findViewById(R.id.tv_speed);
+            dateTextView = (TextView) itemView.findViewById(R.id.tv_date);
             itemView.setOnClickListener(this);
         }
     }
