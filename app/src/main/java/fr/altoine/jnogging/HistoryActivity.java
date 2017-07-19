@@ -1,5 +1,6 @@
 package fr.altoine.jnogging;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -39,7 +40,6 @@ public class HistoryActivity extends AppCompatActivity implements
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading);
         mRunsAdapter = new RunsAdapter(this);
-//        runsAdapter.setRunsData(FakeRunsData.getFakeData());
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -59,6 +59,7 @@ public class HistoryActivity extends AppCompatActivity implements
             cursor.close();
         }
 
+        // TODO: TMP. Perhaps propose to delete run in detailed view.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -70,13 +71,15 @@ public class HistoryActivity extends AppCompatActivity implements
                 long id = (long) viewHolder.itemView.getTag();
                 removeRun(id);
                 mRunsAdapter.swapCursor(getAllRuns());
+                Toast.makeText(HistoryActivity.this, "ID Run " + String.valueOf(id) + " was removed.", Toast.LENGTH_LONG).show();
             }
-        });
+        }).attachToRecyclerView(mRunsHistory);
 
         getSupportLoaderManager().initLoader(ID_RUNS_LOADER, null, this);
         showLoading();
     }
 
+    // TODO: move database related queries to a utility class.
     private boolean removeRun(long id) {
         return mDb.delete(
                 RunContract.RunsEntry.TABLE_NAME,
@@ -109,10 +112,10 @@ public class HistoryActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(String data) {
-        // TODO: go on detail
-        Toast.makeText(this, "TODO: go on detail", Toast.LENGTH_SHORT).show();
-        //Intent goToDetail = new Intent(HistoryActivity.this, DetailRunActivity.class);
+        // TODO: Put extra info in intent when going in run details.
+        Intent goToDetailIntent = new Intent(HistoryActivity.this, DetailRunActivity.class);
         //goToDetail.putExtra()
+        startActivity(goToDetailIntent);
     }
 
     @Override

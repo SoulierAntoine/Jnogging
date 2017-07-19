@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mDb = new RunDbHelper(this).getWritableDatabase();
 
-        // TODO: set base produce errors on Chronometer widget
+        // TODO: Set base produce errors on Chronometer widget.
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(CHRONOMETER_KEY)) {
                 long base = savedInstanceState.getLong(CHRONOMETER_KEY, SystemClock.elapsedRealtime());
@@ -250,19 +250,19 @@ public class MainActivity extends AppCompatActivity implements
         mRestartButton.setVisibility(View.INVISIBLE);
         mStartButton.setText(getString(R.string.start_run));
 
-        Toast.makeText(this, "Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
-//        Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
     }
 
 
-    // TODO: tmp
+    // TODO: TMP. Get the distance and then calculate the speed
     private long addNewRun() {
         DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(RunContract.RunsEntry.COLUMN_DISTANCE, 5);
         contentValues.put(RunContract.RunsEntry.COLUMN_START_TIME, dateFormat.format(new Date()));
-        contentValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING, 30);
+        contentValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING, ((getTimeRan() / 1000) / 60));
         contentValues.put(RunContract.RunsEntry.COLUMN_SPEED, 10);
         return mDb.insert(RunContract.RunsEntry.TABLE_NAME, null, contentValues);
     }
@@ -348,11 +348,11 @@ public class MainActivity extends AppCompatActivity implements
                 startActivity(launchHistoryActivity);
                 break;
             case R.id.action_settings:
-                // TODO: implement settings action
+                // TODO: Implement settings action.
                 Toast.makeText(this, "TODO: implement settings action", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.action_help:
-                // TODO: implement help action
+                // TODO: Implement help action.
                 Toast.makeText(this, "TODO: implement help action", Toast.LENGTH_SHORT).show();
                 // showHelp();
                 break;

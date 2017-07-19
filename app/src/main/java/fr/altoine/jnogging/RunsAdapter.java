@@ -52,7 +52,10 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
 
     @Override
     public void onBindViewHolder(RunsAdapterViewHolder holder, int position) {
-        mCursor.moveToPosition(position);
+        if (!mCursor.moveToPosition(position))
+            return;
+
+        long id = mCursor.getLong(Constants.INDEX_RUN_ID);
         int distance = mCursor.getInt(Constants.INDEX_RUN_DISTANCE);
         float speed = mCursor.getFloat(Constants.INDEX_RUN_SPEED);
         int timeSpentRunning = mCursor.getInt(Constants.INDEX_TIME_SPENT_RUNNING);
@@ -71,6 +74,7 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
         if (formattedDate != null)
             displayedDate = dateFormat.format(formattedDate);
 
+        holder.itemView.setTag(id);
         holder.distanceTextView.setText(String.valueOf(distance));
         holder.speedTextView.setText(String.valueOf(speed));
         holder.timeTextView.setText(String.valueOf(timeSpentRunning));

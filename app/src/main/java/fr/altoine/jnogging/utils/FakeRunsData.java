@@ -20,6 +20,8 @@ import fr.altoine.jnogging.data.RunContract;
  */
 
 public class FakeRunsData {
+    private final static int nbFakeRows = 15;
+
     private static Date[] getRandomSubsequentDate() {
         GregorianCalendar calendar = new GregorianCalendar(TimeZone.getDefault());
         int year = rand(2014, 2016);
@@ -75,7 +77,7 @@ public class FakeRunsData {
 
     public static void insertFakeData(Context context) {
         List<ContentValues> fakeValues = new ArrayList<ContentValues>();
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < nbFakeRows; ++i)
             fakeValues.add(FakeRunsData.createFakeData());
 
         context.getContentResolver().bulkInsert(RunContract.RunsEntry.CONTENT_URI, fakeValues.toArray(new ContentValues[10]));

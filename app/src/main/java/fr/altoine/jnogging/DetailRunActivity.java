@@ -33,6 +33,7 @@ public class DetailRunActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_run);
 
+        // TODO: Get the run detail from the history and display it.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.f_map);
         mapFragment.getMapAsync(this);
 
@@ -42,8 +43,8 @@ public class DetailRunActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // TODO: display two markers (start and arrival) at end of run
-        // TODO: use google directions api to draw an itinerary
+        // TODO: Display two markers (start and arrival) at end of run.
+        // TODO: Use google directions api to draw an itinerary.
         // mMapReady = true;
         mMap = googleMap;
         mMap.setMinZoomPreference(11.0f);
@@ -95,7 +96,7 @@ public class DetailRunActivity extends AppCompatActivity implements
                             DialogFragment explanationDialog = new PermissionExplanationDialogFragment();
                             explanationDialog.show(getFragmentManager(), "tag");
                         }
-                        // TODO: disable google map after a run in else statement
+                        // TODO: Disable google map after a run in else statement.
                     }
                 }
                 break;
