@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ public class HistoryActivity extends AppCompatActivity implements
         RunsAdapter.RunsAdapterOnClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private SQLiteDatabase mDb;
     private RecyclerView mRunsHistory;
     private RunsAdapter mRunsAdapter;
     private ProgressBar mLoadingIndicator;
@@ -47,18 +49,52 @@ public class HistoryActivity extends AppCompatActivity implements
         mRunsHistory.setLayoutManager(layoutManager);
         mRunsHistory.setAdapter(mRunsAdapter);
 
+        mDb = new RunDbHelper(this).getReadableDatabase();
+
         if (BuildConfig.DEBUG) {
-            SQLiteDatabase db;
-            db = new RunDbHelper(this).getReadableDatabase();
-            Cursor cursor = db.query(RunContract.RunsEntry.TABLE_NAME, Constants.RUNS_PROJECTION, null, null, null, null, null);
+            Cursor cursor = mDb.query(RunContract.RunsEntry.TABLE_NAME, Constants.RUNS_PROJECTION, null, null, null, null, null);
             if (cursor.getCount() == 0)
                 FakeRunsData.insertFakeData(HistoryActivity.this);
 
             cursor.close();
         }
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                long id = (long) viewHolder.itemView.getTag();
+                removeRun(id);
+                mRunsAdapter.swapCursor(getAllRuns());
+            }
+        });
+
         getSupportLoaderManager().initLoader(ID_RUNS_LOADER, null, this);
         showLoading();
+    }
+
+    private boolean removeRun(long id) {
+        return mDb.delete(
+                RunContract.RunsEntry.TABLE_NAME,
+                RunContract.RunsEntry._ID + "=" + String.valueOf(id),
+                null
+        ) > 0;
+    }
+
+    private Cursor getAllRuns() {
+        return mDb.query(
+                RunContract.RunsEntry.TABLE_NAME,
+                Constants.RUNS_PROJECTION,
+                null,
+                null,
+                null,
+                null,
+                RunContract.RunsEntry.COLUMN_START_TIME + " DESC"
+        );
     }
 
     private void showLoading() {

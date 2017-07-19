@@ -39,6 +39,23 @@
         android:layout_gravity="center"
         android:textSize="@dimen/restart_text_size"
         android:visibility="invisible"
-        android:background="@drawable/button_selector"/>
+        android:background="@drawable/button_selector"
+        android:layout_marginBottom="@dimen/start_running_margin_bottom"/>
 
+    <ImageView
+        android:id="@+id/img_current_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_standing"
+        android:layout_marginBottom="@dimen/start_running_margin_bottom"/>
+
+    <TextView
+        android:id="@+id/tv_no_internet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="@dimen/start_running_text_size"
+        android:text="@string/no_internet_error"
+        android:visibility="invisible"/>
 </LinearLayout>

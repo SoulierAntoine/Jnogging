@@ -63,7 +63,6 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
         try {
             formattedDate = dateFormat.parse(startTime);
             dateFormat = new SimpleDateFormat("dd/mm/yyyy", Locale.getDefault());
-//            dateFormat = new SimpleDateFormat("dd/mm/yyyy HH:mm", Locale.getDefault());
         } catch (ParseException e) {
             e.printStackTrace();
         }

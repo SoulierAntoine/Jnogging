@@ -22,7 +22,7 @@ public class RunDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String CREATE_TABLE_RUNS = "CREATE TABLE " + RunsEntry.TABLE_NAME + " (" +
-                RunsEntry._ID                            + " INTEGER PRIMARY KEY, " +
+                RunsEntry._ID                            + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 RunsEntry.COLUMN_DISTANCE                + " INTEGER NOT NULL, " +
                 RunsEntry.COLUMN_SPEED                   + " INTEGER NOT NULL, " +
                 RunsEntry.COLUMN_START_TIME              + " DATETIME NOT NULL, " +
@@ -30,7 +30,7 @@ public class RunDbHelper extends SQLiteOpenHelper {
 
 
         final String CREATE_TABLE_STEPS = "CREATE TABLE " + StepsEntry.TABLE_NAME + " (" +
-                StepsEntry._ID                            + " INTEGER PRIMARY KEY, " +
+                StepsEntry._ID                            + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 StepsEntry.COLUMN_ID_RUN                  + " INTEGER NOT NULL, " +
                 StepsEntry.COLUMN_ACTIVITY                + " VARCHAR(50) NOT NULL, " +
                 StepsEntry.COLUMN_TIME                    + " DATETIME NOT NULL, " +

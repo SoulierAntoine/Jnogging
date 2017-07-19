@@ -2,23 +2,60 @@ package fr.altoine.jnogging;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by soulierantoine on 29/06/2017.
+ * Created by soulierantoine on 29/06/7517.
  */
 
 public class ActivityRecognitionService extends IntentService {
-    public ActivityRecognitionService() {
-        super("ActivityRecognitionService");
+    public ActivityRecognitionService() { super("ActivityRecognitionService"); }
+    private final IBinder mBinder = new LocalBinder();
+    private List<ActivityRecognitionListener> mActivityRecognitionListeners = new ArrayList<>();
+
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+
+    /**
+     * Used by the client (activity or other component) to get the service
+     */
+    public class LocalBinder extends Binder {
+        ActivityRecognitionService getService() {
+            return ActivityRecognitionService.this;
+        }
+    }
+
+
+    /**
+     * Register listener that'll be called when the user activity is recognized
+     * @param listener that'll have to implement a callback method
+     */
+    public void registerListener(ActivityRecognitionListener listener) {
+        mActivityRecognitionListeners.add(listener);
+    }
+
+    public void unregisterListener(ActivityRecognitionListener listener) {
+        mActivityRecognitionListeners.remove(listener);
+    }
+
+    private void sendRecognizedActivity(String activity) {
+        for (int i = 0; i < mActivityRecognitionListeners.size(); ++i) {
+            mActivityRecognitionListeners.get(i).onActivityRecognized(activity);
+        }
     }
 
     @Override
@@ -33,43 +70,59 @@ public class ActivityRecognitionService extends IntentService {
         for (DetectedActivity activity : probableActivities ) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
-                    Log.v( "ActivityRecogition", "In Vehicle: " + activity.getConfidence());
+                    Log.v("in_vehicle", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("in_vehicle");
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
-                    Log.v( "ActivityRecogition", "On Bicycle: " + activity.getConfidence());
-                    break;
-                }
-                case DetectedActivity.ON_FOOT: {
-                    Log.v( "ActivityRecogition", "On Foot: " + activity.getConfidence());
+                    Log.v("on_bicycle", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("on_bicycle");
                     break;
                 }
                 case DetectedActivity.RUNNING: {
-                    Log.v( "ActivityRecogition", "Running: " + activity.getConfidence());
+                    Log.v("running", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("running");
                     break;
                 }
                 case DetectedActivity.STILL: {
-                    Log.v( "ActivityRecogition", "Still: " + activity.getConfidence());
+                    Log.v("still", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("still");
                     break;
                 }
                 case DetectedActivity.TILTING: {
-                    Log.v( "ActivityRecogition", "Tilting: " + activity.getConfidence());
+                    Log.v("tilting", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("tilting");
+                    break;
+                }
+                case DetectedActivity.ON_FOOT: {
+                    Log.v("on_foot", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("on_foot");
                     break;
                 }
                 case DetectedActivity.WALKING: {
-                    Log.v( "ActivityRecogition", "Walking: " + activity.getConfidence());
-                    if( activity.getConfidence() >= 75 ) {
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText( "Are you walking?" );
-                        builder.setSmallIcon( R.mipmap.ic_launcher );
-                        builder.setContentTitle( getString( R.string.app_name ) );
+                    Log.v("walking", String.valueOf(activity.getConfidence()));
 
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
-                    }
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("walking");
                     break;
                 }
                 case DetectedActivity.UNKNOWN: {
-                    Log.v( "ActivityRecogition", "Unknown: " + activity.getConfidence());
+                    Log.v("unknown", String.valueOf(activity.getConfidence()));
+
+                    if (activity.getConfidence() >= 75)
+                        sendRecognizedActivity("unknown");
                     break;
                 }
             }

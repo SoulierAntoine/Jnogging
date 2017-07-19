@@ -10,6 +10,7 @@ public class Constants {
     private Constants() {}
 
     public static final String DATE_FORMAT = "YYYY-MM-DD HH:MM:SS";
+    public static final long CHECK_USER_ACTIVITY_INTERVAL = 5000;
 
     public static final String[] RUNS_PROJECTION = {
             RunContract.RunsEntry.COLUMN_DISTANCE,

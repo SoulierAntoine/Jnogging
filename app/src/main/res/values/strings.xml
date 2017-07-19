@@ -11,6 +11,8 @@
     <string name="label_time">min</string>
     <string name="label_speed">km/h</string>
 
+    <string name="no_internet_error">An internet connection is required to get your activity.</string>
+
     <string name="chronometer_format" translatable="false">HH:MM:SS</string>
     <string name="pref_first_run_key" translatable="false">previously_started</string>
 </resources>
