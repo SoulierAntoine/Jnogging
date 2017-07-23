@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import fr.altoine.jnogging.data.RunContract;
+import fr.altoine.jnogging.model.data.RunContract;
 
 /**
  * Created by soulierantoine on 03/07/2017.

@@ -5,13 +5,13 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,15 +36,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import fr.altoine.jnogging.data.RunContract;
-import fr.altoine.jnogging.data.RunDbHelper;
+import fr.altoine.jnogging.model.data.RunContract;
+import fr.altoine.jnogging.model.data.RunDbHelper;
 import fr.altoine.jnogging.utils.Constants;
+import fr.altoine.jnogging.view.GoogleApiErrorDialogFragment;
+import fr.altoine.jnogging.view.IActivityRecognitionListener;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        ActivityRecognitionListener {
+        IActivityRecognitionListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
 
     // UI Components ------------------------------------------------------------------------------
@@ -62,17 +63,28 @@ public class MainActivity extends AppCompatActivity implements
     private final int STATE_RUNNING = 1;
 
     private final String TAG = MainActivity.class.getSimpleName();
-    private final String CHRONOMETER_KEY = "chronometer_key";
+
+    // Keys for saved bundle instance
+    private final String STATE_CHRONOMETER = "chronometer_key";
     private final String STATE_KEY = "state_key";
+    private static final String STATE_RESOLVING_ERROR = "resolving_error";
 
 
     // Miscellaneous ------------------------------------------------------------------------------
 
-    private int mCurrentState;
     private SQLiteDatabase mDb;
-    ActivityRecognitionService mActivityRecognitionService;
+    private ActivityRecognitionService mActivityRecognitionService;
     private GoogleApiClient mApiClient;
     boolean mBoundToActivityRecognitionService = false;
+
+    // Whether the user has started the chronometer or not
+    private int mCurrentState;
+
+    // Bool to track whether the app is already resolving an error cause by a fail google API connection
+    private boolean mResolvingError = false;
+
+
+    // Service Connection for binding to service and service callbacks ----------------------------
 
     /**
      * Interface the system uses to monitor connection to a service
@@ -82,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements
         public void onServiceConnected(ComponentName name, IBinder service) {
             ActivityRecognitionService.LocalBinder binder = (ActivityRecognitionService.LocalBinder) service;
             mActivityRecognitionService = binder.getService();
+
             mActivityRecognitionService.registerListener(MainActivity.this);
+
             mBoundToActivityRecognitionService = true;
         }
 
@@ -92,14 +106,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
-    /**
-     * Called by the service whenever the activity of the user has been determined
-     * @param activity the current activity of the user (e.g: still, walking...)
-     */
     @Override
     public void onActivityRecognized(String activity) {
         switch (activity) {
-//            case "on_foot":
             case "walking":
                 runOnUiThread(new Runnable() {
                     @Override
@@ -146,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements
 
     // Activity lifecycle -------------------------------------------------------------------------
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,10 +175,18 @@ public class MainActivity extends AppCompatActivity implements
 
         mDb = new RunDbHelper(this).getWritableDatabase();
 
+        mApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addOnConnectionFailedListener(this)
+                .addApi(ActivityRecognition.API)
+                .build();
+
         // TODO: Set base produce errors on Chronometer widget.
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(CHRONOMETER_KEY)) {
-                long base = savedInstanceState.getLong(CHRONOMETER_KEY, SystemClock.elapsedRealtime());
+            mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
+
+            if (savedInstanceState.containsKey(STATE_CHRONOMETER)) {
+                long base = savedInstanceState.getLong(STATE_CHRONOMETER, SystemClock.elapsedRealtime());
                 mRunChronometer.setBase(base);
             }
 
@@ -182,39 +200,33 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Google Api Clients is connected after the activity calls onStart()
+        startActivityRecognition();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
-        if (mApiClient != null)
-            mApiClient.disconnect();
-
         if (mBoundToActivityRecognitionService) {
             if (mActivityRecognitionService != null)
-                mActivityRecognitionService.unregisterListener(MainActivity.this);
+                mActivityRecognitionService.unregisterListener(this);
 
             unbindService(mServiceConnection);
             mBoundToActivityRecognitionService = false;
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mApiClient = new GoogleApiClient.Builder(this)
-                .addApi(ActivityRecognition.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mApiClient.connect();
-    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mCurrentState == STATE_RUNNING)
-            outState.putLong(CHRONOMETER_KEY, getTimeRan());
+            outState.putLong(STATE_CHRONOMETER, getTimeRan());
         outState.putInt(STATE_KEY, mCurrentState);
+        outState.putBoolean(STATE_RESOLVING_ERROR, mResolvingError);
     }
 
 
@@ -243,6 +255,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+
+    // App Logic ------------------------------------------------------------------------------
+
     private void stopRunning() {
         mRunChronometer.stop();
 
@@ -250,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements
         mRestartButton.setVisibility(View.INVISIBLE);
         mStartButton.setText(getString(R.string.start_run));
 
-//        Toast.makeText(this, "Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
         Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
     }
 
@@ -286,50 +300,98 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        final int PENDING_ID = 434;
+    public void startActivityRecognition() {
+        if (mApiClient.isConnected()) {
+            final int PENDING_ID = 434;
 
-        Intent activityRecognitionIntent = new Intent(this, ActivityRecognitionService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(this, PENDING_ID, activityRecognitionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingResult<Status> pendingResult = ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, Constants.CHECK_USER_ACTIVITY_INTERVAL, pendingIntent);
+            Intent activityRecognitionIntent = new Intent(this, ActivityRecognitionService.class);
 
-        try {
-            bindService(activityRecognitionIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-
-        pendingResult.setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-                if (status.isSuccess()) {
-                    Log.v(TAG, "Google API call successful !");
-                    if (mNoInternetErrorTextView.getVisibility() == View.VISIBLE)
-                    mNoInternetErrorTextView.setVisibility(View.INVISIBLE);
-                }
-
-                if (status.isInterrupted()) {
-                    Log.v(TAG, "Google API call was interrupted !");
-                    mCurrentActivityImage.setImageDrawable(
-                            ResourcesCompat.getDrawable(getResources(), R.drawable.ic_thinking, null)
-                    );
-                    mNoInternetErrorTextView.setVisibility(View.VISIBLE);
-                }
+            try {
+                bindService(activityRecognitionIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            } catch (SecurityException e) {
+                e.printStackTrace();
             }
-        });
+
+            PendingIntent pendingIntent = PendingIntent.getService(this, PENDING_ID, activityRecognitionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingResult<Status> pendingResult = ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, Constants.CHECK_USER_ACTIVITY_INTERVAL, pendingIntent);
+            pendingResult.setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    if (status.isSuccess()) {
+                        Log.v(TAG, "Google API call successful !");
+                        if (mNoInternetErrorTextView.getVisibility() == View.VISIBLE)
+                            mNoInternetErrorTextView.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (status.isInterrupted()) {
+                        Log.e(TAG, "Google API call was interrupted !");
+                        mCurrentActivityImage.setImageDrawable(
+                                ResourcesCompat.getDrawable(getResources(), R.drawable.ic_thinking, null)
+                        );
+                        mNoInternetErrorTextView.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
     }
 
 
+    // Handle Google Api error --------------------------------------------------------------------
+
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.e(TAG, "Connection suspended");
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.e(TAG, "Connection failed");
+
+        // Already attempting to resolve an error.
+        if (mResolvingError) {
+            return;
+        } else if (connectionResult.hasResolution()) {
+            try {
+                mResolvingError = true;
+                // Will try to resolve the error
+                connectionResult.startResolutionForResult(this, Constants.Keys.REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                mApiClient.connect();
+            }
+        } else {
+            showErrorDialog(connectionResult.getErrorCode());
+            mResolvingError = true;
+        }
+    }
+
+    private void showErrorDialog(int errorCode) {
+        Bundle args = new Bundle();
+        args.putInt(Constants.Keys.GOOGLE_API_DIALOG_ERROR, errorCode);
+
+        GoogleApiErrorDialogFragment dialogFragment = new GoogleApiErrorDialogFragment();
+        dialogFragment.setArguments(args);
+        dialogFragment.show(getFragmentManager(), "error");
+    }
+
+    public void onDialogDismissed() {
+        mResolvingError = false;
+    }
+
+    /**
+     * Called after the user dismisses the GoogleApiErrorDialogFragment
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case Constants.Keys.REQUEST_RESOLVE_ERROR:
+                mResolvingError = false;
+                if (resultCode == RESULT_OK) {
+                    // Make sure the app is not already connected or attempting to connect
+                    if (!mApiClient.isConnecting() && !mApiClient.isConnected()) {
+                        mApiClient.connect();
+                    }
+                }
+            break;
+        }
     }
 
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { Log.e(TAG, "Connection failed"); }
-
+    // Handle Menu -------------------------------------------------------------------------------
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -362,48 +424,4 @@ public class MainActivity extends AppCompatActivity implements
 
         return super.onOptionsItemSelected(item);
     }
-
-
-    /* @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean previouslyStarted = prefs.getBoolean(getString(R.string.pref_first_run_key), false);
-
-        if(!previouslyStarted) {
-            SharedPreferences.Editor edit = prefs.edit();
-            edit.putBoolean(getString(R.string.pref_first_run_key), Boolean.TRUE);
-            edit.commit();
-            showHelp();
-        }
-    }
-
-    public void showHelp() {
-        Intent mainAct = new Intent(this, MaterialTutorialActivity.class);
-        mainAct.putParcelableArrayListExtra(MaterialTutorialActivity.MATERIAL_TUTORIAL_ARG_TUTORIAL_ITEMS, getTutorialItems(this));
-        startActivityForResult(mainAct, REQUEST_CODE);
-    }
-
-    private ArrayList<TutorialItem> getTutorialItems(Context context) {
-        TutorialItem tutorialItem1 = new TutorialItem(
-                context.getString(R.string.slide_1_african_story_books),
-                context.getString(R.string.slide_1_african_story_books_subtitle),
-                R.color.slide_1,
-                R.drawable.tut_page_1_front,
-                R.drawable.tut_page_1_background
-        );
-
-        TutorialItem tutorialItem2 = new TutorialItem(
-                context.getString(R.string.slide_1_african_story_books),
-                context.getString(R.string.slide_1_african_story_books_subtitle),
-                R.color.slide_1, R.drawable.gif_drawable, true
-        );
-
-        ArrayList<TutorialItem> tutorialItems = new ArrayList<>();
-        tutorialItems.add(tutorialItem1);
-        tutorialItems.add(tutorialItem2);
-
-        return tutorialItems;
-    } */
 }

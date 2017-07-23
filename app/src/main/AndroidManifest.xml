@@ -37,7 +37,7 @@
 
         <provider
             android:authorities="fr.altoine.jnogging"
-            android:name=".data.RunContentProvider"
+            android:name=".model.data.RunContentProvider"
             android:exported="false"/>
     </application>
 

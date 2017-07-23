@@ -13,6 +13,8 @@ import com.google.android.gms.location.DetectedActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.altoine.jnogging.view.IActivityRecognitionListener;
+
 /**
  * Created by soulierantoine on 29/06/7517.
  */
@@ -20,7 +22,7 @@ import java.util.List;
 public class ActivityRecognitionService extends IntentService {
     public ActivityRecognitionService() { super("ActivityRecognitionService"); }
     private final IBinder mBinder = new LocalBinder();
-    private List<ActivityRecognitionListener> mActivityRecognitionListeners = new ArrayList<>();
+    private List<IActivityRecognitionListener> mActivityRecognitionListeners = new ArrayList<>();
 
 
     @Nullable
@@ -44,11 +46,11 @@ public class ActivityRecognitionService extends IntentService {
      * Register listener that'll be called when the user activity is recognized
      * @param listener that'll have to implement a callback method
      */
-    public void registerListener(ActivityRecognitionListener listener) {
+    public void registerListener(IActivityRecognitionListener listener) {
         mActivityRecognitionListeners.add(listener);
     }
 
-    public void unregisterListener(ActivityRecognitionListener listener) {
+    public void unregisterListener(IActivityRecognitionListener listener) {
         mActivityRecognitionListeners.remove(listener);
     }
 

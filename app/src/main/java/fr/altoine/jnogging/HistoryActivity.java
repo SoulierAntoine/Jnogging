@@ -16,8 +16,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import fr.altoine.jnogging.data.RunContract;
-import fr.altoine.jnogging.data.RunDbHelper;
+import fr.altoine.jnogging.model.data.RunContract;
+import fr.altoine.jnogging.model.data.RunDbHelper;
 import fr.altoine.jnogging.utils.Constants;
 import fr.altoine.jnogging.utils.FakeRunsData;
 

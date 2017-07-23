@@ -1,4 +1,4 @@
-package fr.altoine.jnogging.data;
+package fr.altoine.jnogging.model.data;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;

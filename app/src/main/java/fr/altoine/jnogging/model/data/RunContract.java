@@ -1,4 +1,4 @@
-package fr.altoine.jnogging.data;
+package fr.altoine.jnogging.model.data;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

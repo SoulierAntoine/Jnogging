@@ -1,11 +1,11 @@
-package fr.altoine.jnogging.data;
+package fr.altoine.jnogging.model.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import fr.altoine.jnogging.data.RunContract.RunsEntry;
-import fr.altoine.jnogging.data.RunContract.StepsEntry;
+import fr.altoine.jnogging.model.data.RunContract.RunsEntry;
+import fr.altoine.jnogging.model.data.RunContract.StepsEntry;
 
 /**
  * Created by soulierantoine on 04/07/2017.
