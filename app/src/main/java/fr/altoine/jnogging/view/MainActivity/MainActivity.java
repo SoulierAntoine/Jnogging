@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view.MainActivity;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -36,6 +35,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import fr.altoine.jnogging.presenter.MainActivity.MainActivityPresenter;
+import fr.altoine.jnogging.view.ActivityRecognitionService;
+import fr.altoine.jnogging.view.HistoryActivity.HistoryActivity;
+import fr.altoine.jnogging.R;
 import fr.altoine.jnogging.model.data.RunContract;
 import fr.altoine.jnogging.model.data.RunDbHelper;
 import fr.altoine.jnogging.utils.Constants;
@@ -45,32 +48,35 @@ import fr.altoine.jnogging.view.IActivityRecognitionListener;
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         IActivityRecognitionListener,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        IMainActivityView {
 
 
     // UI Components ------------------------------------------------------------------------------
 
     private Button mStartButton;
-    private Button mRestartButton;
+    private Button mStopButton;
     private Chronometer mRunChronometer;
     private ImageView mCurrentActivityImage;
-    private TextView mNoInternetErrorTextView;
+    // private TextView mNoInternetErrorTextView;
 
 
     // Constants ----------------------------------------------------------------------------------
 
-    private final int STATE_IDLE = 0;
-    private final int STATE_RUNNING = 1;
+    // private final int STATE_IDLE = 0;
+    // private final int STATE_RUNNING = 1;
 
     private final String TAG = MainActivity.class.getSimpleName();
 
     // Keys for saved bundle instance
-    private final String STATE_CHRONOMETER = "chronometer_key";
-    private final String STATE_KEY = "state_key";
+    private final String CHRONOMETER_STATE_KEY = "chronometer_key";
+    private final String IS_RUNNING_STATE_KEY = "state_key";
     private static final String STATE_RESOLVING_ERROR = "resolving_error";
 
 
     // Miscellaneous ------------------------------------------------------------------------------
+
+    MainActivityPresenter presenter = new MainActivityPresenter(this);
 
     private SQLiteDatabase mDb;
     private ActivityRecognitionService mActivityRecognitionService;
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements
     boolean mBoundToActivityRecognitionService = false;
 
     // Whether the user has started the chronometer or not
-    private int mCurrentState;
+    private boolean IS_CHRONOMETER_COUNTING;
 
     // Bool to track whether the app is already resolving an error cause by a fail google API connection
     private boolean mResolvingError = false;
@@ -161,17 +167,18 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        IS_CHRONOMETER_COUNTING = false;
         mStartButton = (Button) findViewById(R.id.btn_start);
         mStartButton.setOnClickListener(this);
 
-        mRestartButton = (Button) findViewById(R.id.btn_restart);
-        mRestartButton.setOnClickListener(this);
+        mStopButton = (Button) findViewById(R.id.btn_stop);
+        mStopButton.setOnClickListener(this);
 
         mRunChronometer = (Chronometer) findViewById(R.id.chronometer);
 
         mCurrentActivityImage = (ImageView) findViewById(R.id.img_current_activity);
 
-        mNoInternetErrorTextView = (TextView) findViewById(R.id.tv_no_internet);
+        // mNoInternetErrorTextView = (TextView) findViewById(R.id.tv_no_internet);
 
         mDb = new RunDbHelper(this).getWritableDatabase();
 
@@ -185,14 +192,14 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState != null) {
             mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
 
-            if (savedInstanceState.containsKey(STATE_CHRONOMETER)) {
-                long base = savedInstanceState.getLong(STATE_CHRONOMETER, SystemClock.elapsedRealtime());
+            if (savedInstanceState.containsKey(CHRONOMETER_STATE_KEY)) {
+                long base = savedInstanceState.getLong(CHRONOMETER_STATE_KEY, SystemClock.elapsedRealtime());
                 mRunChronometer.setBase(base);
             }
 
-            if (savedInstanceState.containsKey(STATE_KEY)) {
-                mCurrentState = savedInstanceState.getInt(STATE_KEY, STATE_IDLE);
-                if (mCurrentState == STATE_RUNNING)
+            if (savedInstanceState.containsKey(IS_RUNNING_STATE_KEY)) {
+                IS_CHRONOMETER_COUNTING = savedInstanceState.getBoolean(IS_RUNNING_STATE_KEY, false);
+                if (IS_CHRONOMETER_COUNTING)
                     startRunning(true);
             }
         }
@@ -223,9 +230,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mCurrentState == STATE_RUNNING)
-            outState.putLong(STATE_CHRONOMETER, getTimeRan());
-        outState.putInt(STATE_KEY, mCurrentState);
+        /* if (mCurrentState == STATE_RUNNING)
+            outState.putLong(CHRONOMETER_STATE_KEY, getTimeRan()); */
+        outState.putBoolean(IS_RUNNING_STATE_KEY, IS_CHRONOMETER_COUNTING);
         outState.putBoolean(STATE_RESOLVING_ERROR, mResolvingError);
     }
 
@@ -240,15 +247,15 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (viewId) {
             case R.id.btn_start:
-                if (mCurrentState == STATE_IDLE) {
+                if (!IS_CHRONOMETER_COUNTING) {
                     startRunning(false);
                 } else {
                     stopRunning();
                 }
                 break;
-            case R.id.btn_restart:
+            case R.id.btn_stop:
                 mRunChronometer.stop();
-                startRunning(false);
+                stopRunning();
                 break;
             default:
                 break;
@@ -261,11 +268,23 @@ public class MainActivity extends AppCompatActivity implements
     private void stopRunning() {
         mRunChronometer.stop();
 
-        mCurrentState = STATE_IDLE;
-        mRestartButton.setVisibility(View.INVISIBLE);
+        IS_CHRONOMETER_COUNTING = false;
+        mStopButton.setEnabled(false);
         mStartButton.setText(getString(R.string.start_run));
 
-        Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
+        // Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
+    }
+
+
+    private void startRunning(boolean resumeRunning) {
+        if (!resumeRunning) {
+            mRunChronometer.setBase(SystemClock.elapsedRealtime());
+        }
+        mRunChronometer.start();
+
+        mStopButton.setEnabled(true);
+        mStartButton.setText(getString(R.string.pause_run));
+        IS_CHRONOMETER_COUNTING = true;
     }
 
 
@@ -282,17 +301,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    private void startRunning(boolean resumeRunning) {
-        if (!resumeRunning)
-            mRunChronometer.setBase(SystemClock.elapsedRealtime());
-        mRunChronometer.start();
 
-        if (mRestartButton.getVisibility() == View.INVISIBLE)
-            mRestartButton.setVisibility(View.VISIBLE);
-
-        mCurrentState = STATE_RUNNING;
-        mStartButton.setText(getString(R.string.stop_run));
-    }
 
 
     private long getTimeRan() {
@@ -319,8 +328,8 @@ public class MainActivity extends AppCompatActivity implements
                 public void onResult(@NonNull Status status) {
                     if (status.isSuccess()) {
                         Log.v(TAG, "Google API call successful !");
-                        if (mNoInternetErrorTextView.getVisibility() == View.VISIBLE)
-                            mNoInternetErrorTextView.setVisibility(View.INVISIBLE);
+                        /* if (mNoInternetErrorTextView.getVisibility() == View.VISIBLE)
+                            mNoInternetErrorTextView.setVisibility(View.INVISIBLE); */
                     }
 
                     if (status.isInterrupted()) {
@@ -328,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements
                         mCurrentActivityImage.setImageDrawable(
                                 ResourcesCompat.getDrawable(getResources(), R.drawable.ic_thinking, null)
                         );
-                        mNoInternetErrorTextView.setVisibility(View.VISIBLE);
+                        // mNoInternetErrorTextView.setVisibility(View.VISIBLE);
                     }
                 }
             });

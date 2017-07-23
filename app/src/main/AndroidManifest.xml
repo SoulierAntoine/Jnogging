@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" android:screenOrientation="portrait">
+        <activity android:name=".view.MainActivity.MainActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,10 +29,10 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".DetailRunActivity" />
-        <activity android:name=".HistoryActivity"/>
+        <activity android:name=".view.DetailRunActivity.DetailRunActivity" />
+        <activity android:name=".view.HistoryActivity.HistoryActivity"/>
 
-        <service android:name=".ActivityRecognitionService"
+        <service android:name=".view.ActivityRecognitionService"
             android:exported="false"/>
 
         <provider

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fr.altoine.jnogging.DetailRunActivity">
+    tools:context="fr.altoine.jnogging.view.DetailRunActivity.DetailRunActivity">
 
     <fragment
         android:id="@+id/f_map"

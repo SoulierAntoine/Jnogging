@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -12,8 +12,6 @@ import com.google.android.gms.location.DetectedActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import fr.altoine.jnogging.view.IActivityRecognitionListener;
 
 /**
  * Created by soulierantoine on 29/06/7517.
@@ -36,7 +34,7 @@ public class ActivityRecognitionService extends IntentService {
      * Used by the client (activity or other component) to get the service
      */
     public class LocalBinder extends Binder {
-        ActivityRecognitionService getService() {
+        public ActivityRecognitionService getService() {
             return ActivityRecognitionService.this;
         }
     }

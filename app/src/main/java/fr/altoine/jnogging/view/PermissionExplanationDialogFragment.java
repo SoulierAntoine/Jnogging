@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

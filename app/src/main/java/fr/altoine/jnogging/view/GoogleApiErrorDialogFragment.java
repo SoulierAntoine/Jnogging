@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import fr.altoine.jnogging.MainActivity;
+import fr.altoine.jnogging.view.MainActivity.MainActivity;
 import fr.altoine.jnogging.utils.Constants;
 
 /**

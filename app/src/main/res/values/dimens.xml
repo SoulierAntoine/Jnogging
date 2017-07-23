@@ -17,7 +17,7 @@
     <dimen name="chronometer_text_size">35sp</dimen>
 
     <dimen name="start_running_margin_bottom">20dp</dimen>
-    <dimen name="start_running_text_size">18sp</dimen>
+    <dimen name="chronometer_control_btn">15sp</dimen>
 
     <dimen name="restart_height">40dp</dimen>
     <dimen name="restart_text_size">13sp</dimen>

@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view.HistoryActivity;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,10 +16,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import fr.altoine.jnogging.BuildConfig;
+import fr.altoine.jnogging.R;
 import fr.altoine.jnogging.model.data.RunContract;
 import fr.altoine.jnogging.model.data.RunDbHelper;
 import fr.altoine.jnogging.utils.Constants;
 import fr.altoine.jnogging.utils.FakeRunsData;
+import fr.altoine.jnogging.view.DetailRunActivity.DetailRunActivity;
 
 public class HistoryActivity extends AppCompatActivity implements
         RunsAdapter.RunsAdapterOnClickListener,

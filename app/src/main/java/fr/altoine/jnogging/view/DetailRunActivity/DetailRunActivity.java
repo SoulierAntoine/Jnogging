@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view.DetailRunActivity;
 
 import android.Manifest;
 import android.app.DialogFragment;
@@ -15,6 +15,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import fr.altoine.jnogging.view.PermissionExplanationDialogFragment;
+import fr.altoine.jnogging.R;
 import fr.altoine.jnogging.utils.JnoggingUtilities;
 
 public class DetailRunActivity extends AppCompatActivity implements

@@ -1,4 +1,4 @@
-package fr.altoine.jnogging;
+package fr.altoine.jnogging.view.HistoryActivity;
 
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import fr.altoine.jnogging.R;
 import fr.altoine.jnogging.utils.Constants;
 
 /**
@@ -55,11 +56,11 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
         if (!mCursor.moveToPosition(position))
             return;
 
-        long id = mCursor.getLong(Constants.INDEX_RUN_ID);
-        int distance = mCursor.getInt(Constants.INDEX_RUN_DISTANCE);
-        float speed = mCursor.getFloat(Constants.INDEX_RUN_SPEED);
-        int timeSpentRunning = mCursor.getInt(Constants.INDEX_TIME_SPENT_RUNNING);
-        String startTime = mCursor.getString(Constants.INDEX_RUN_START_TIME);
+        long id = mCursor.getLong(Constants.RunsTable.INDEX_RUN_ID);
+        int distance = mCursor.getInt(Constants.RunsTable.INDEX_RUN_DISTANCE);
+        float speed = mCursor.getFloat(Constants.RunsTable.INDEX_RUN_SPEED);
+        int timeSpentRunning = mCursor.getInt(Constants.RunsTable.INDEX_TIME_SPENT_RUNNING);
+        String startTime = mCursor.getString(Constants.RunsTable.INDEX_RUN_START_TIME);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss", Locale.getDefault());
         Date formattedDate = null;
@@ -119,9 +120,6 @@ public class RunsAdapter extends RecyclerView.Adapter<RunsAdapter.RunsAdapterVie
 
         public RunsAdapterViewHolder(View itemView) {
             super(itemView);
-//            distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance_value);
-//            timeTextView = (TextView) itemView.findViewById(R.id.tv_time_value);
-//            speedTextView = (TextView) itemView.findViewById(R.id.tv_speed_value);
             distanceTextView = (TextView) itemView.findViewById(R.id.tv_distance);
             timeTextView = (TextView) itemView.findViewById(R.id.tv_time);
             speedTextView = (TextView) itemView.findViewById(R.id.tv_speed);

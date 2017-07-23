@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fr.altoine.jnogging.MainActivity"
+    tools:context="fr.altoine.jnogging.view.MainActivity.MainActivity"
     android:paddingBottom="@dimen/run_history_padding_vertical"
     android:paddingTop="@dimen/run_history_padding_vertical"
     android:paddingLeft="@dimen/run_history_padding_horizontal"
@@ -22,25 +22,32 @@
         android:textStyle="bold"
         android:textColor="@color/accent" />
 
-    <Button
-        android:id="@+id/btn_start"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/start_run"
-        android:textSize="@dimen/start_running_text_size"
-        android:background="@drawable/button_selector"
-        android:layout_marginBottom="@dimen/start_running_margin_bottom"/>
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_start"
+            android:text="@string/start_run"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0.5"
+            android:textSize="@dimen/chronometer_control_btn"
+            android:background="@drawable/button_selector" />
 
-    <Button
-        android:id="@+id/btn_restart"
-        android:text="@string/restart"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/restart_height"
-        android:layout_gravity="center"
-        android:textSize="@dimen/restart_text_size"
-        android:visibility="invisible"
-        android:background="@drawable/button_selector"
-        android:layout_marginBottom="@dimen/start_running_margin_bottom"/>
+        <Button
+            android:id="@+id/btn_stop"
+            android:text="@string/stop_run"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0.5"
+            android:enabled="false"
+            android:textSize="@dimen/chronometer_control_btn"
+            android:background="@drawable/button_selector" />
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/img_current_activity"
@@ -48,14 +55,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:src="@drawable/ic_standing"
-        android:layout_marginBottom="@dimen/start_running_margin_bottom"/>
+        android:layout_marginTop="@dimen/start_running_margin_bottom"/>
 
-    <TextView
+    <!-- <TextView
         android:id="@+id/tv_no_internet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="@dimen/start_running_text_size"
         android:text="@string/no_internet_error"
-        android:visibility="invisible"/>
+        android:visibility="invisible"/> -->
 </LinearLayout>
