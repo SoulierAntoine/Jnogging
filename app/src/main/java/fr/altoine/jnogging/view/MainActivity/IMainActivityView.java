@@ -5,4 +5,6 @@ package fr.altoine.jnogging.view.MainActivity;
  */
 
 public interface IMainActivityView {
+    void changeToRunning(boolean resumeRunning);
+    void changeToStopRunning();
 }

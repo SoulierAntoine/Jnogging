@@ -26,9 +26,12 @@ public class DetailRunActivity extends AppCompatActivity implements
 
     private final static String TAG = DetailRunActivity.class.getSimpleName();
     // private static boolean mMapReady = false;
-    private static GoogleMap mMap;
+    private GoogleMap mMap;
     private final static int PERMISSION_ACCESS_FINE_LOCATION = 123;
 
+    public GoogleMap getMap() {
+        return mMap;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

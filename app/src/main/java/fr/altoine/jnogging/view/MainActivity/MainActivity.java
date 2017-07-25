@@ -1,13 +1,16 @@
 package fr.altoine.jnogging.view.MainActivity;
 
+import android.Manifest;
+import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
-import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -30,26 +33,25 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import fr.altoine.jnogging.presenter.MainActivity.MainActivityPresenter;
-import fr.altoine.jnogging.view.ActivityRecognitionService;
-import fr.altoine.jnogging.view.HistoryActivity.HistoryActivity;
 import fr.altoine.jnogging.R;
-import fr.altoine.jnogging.model.data.RunContract;
-import fr.altoine.jnogging.model.data.RunDbHelper;
+import fr.altoine.jnogging.model.JnoggingDatabase;
+import fr.altoine.jnogging.presenter.ActivityRecognitionService;
+import fr.altoine.jnogging.presenter.MainActivity.MainActivityPresenter;
 import fr.altoine.jnogging.utils.Constants;
 import fr.altoine.jnogging.view.GoogleApiErrorDialogFragment;
+import fr.altoine.jnogging.view.HistoryActivity.HistoryActivity;
 import fr.altoine.jnogging.view.IActivityRecognitionListener;
+import fr.altoine.jnogging.view.IPermissionGrantedListener;
+import fr.altoine.jnogging.view.PermissionExplanationDialogFragment;
+import fr.altoine.jnogging.view.PermissionHandler;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         IActivityRecognitionListener,
         GoogleApiClient.OnConnectionFailedListener,
+        IPermissionGrantedListener,
         IMainActivityView {
+
 
 
     // UI Components ------------------------------------------------------------------------------
@@ -58,13 +60,10 @@ public class MainActivity extends AppCompatActivity implements
     private Button mStopButton;
     private Chronometer mRunChronometer;
     private ImageView mCurrentActivityImage;
-    // private TextView mNoInternetErrorTextView;
+
 
 
     // Constants ----------------------------------------------------------------------------------
-
-    // private final int STATE_IDLE = 0;
-    // private final int STATE_RUNNING = 1;
 
     private final String TAG = MainActivity.class.getSimpleName();
 
@@ -74,26 +73,29 @@ public class MainActivity extends AppCompatActivity implements
     private static final String STATE_RESOLVING_ERROR = "resolving_error";
 
 
+
     // Miscellaneous ------------------------------------------------------------------------------
 
-    MainActivityPresenter presenter = new MainActivityPresenter(this);
+    private MainActivityPresenter presenter = new MainActivityPresenter(this);
 
-    private SQLiteDatabase mDb;
     private ActivityRecognitionService mActivityRecognitionService;
     private GoogleApiClient mApiClient;
-    boolean mBoundToActivityRecognitionService = false;
+    private boolean mBoundToActivityRecognitionService = false;
+
+    private PermissionHandler mPermissionHandler = new PermissionHandler(this, this);
 
     // Whether the user has started the chronometer or not
     private boolean IS_CHRONOMETER_COUNTING;
 
-    // Bool to track whether the app is already resolving an error cause by a fail google API connection
+    // Bool to track whether the app is already resolving a google API connection fail error or not
     private boolean mResolvingError = false;
 
 
-    // Service Connection for binding to service and service callbacks ----------------------------
+
+    // Service Connection for binding to service --------------------------------------------------
 
     /**
-     * Interface the system uses to monitor connection to a service
+     * Interface used by the system to monitor connection to a service
      */
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -111,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements
             mBoundToActivityRecognitionService = false;
         }
     };
+
+
+
+    // Activity Recognition listener --------------------------------------------------------------
 
     @Override
     public void onActivityRecognized(String activity) {
@@ -159,8 +165,63 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // Activity lifecycle -------------------------------------------------------------------------
 
+
+    // Location listener --------------------------------------------------------------------------
+
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            // TODO: now considering that a run is a start and an end, and that the start begins
+            // when the chronometer is counting from 0 and end when the user click on stop
+            if (location.getAccuracy() >= 68.0) {
+                double longitude = location.getLongitude();
+                double latitude = location.getLatitude();
+                presenter.setPosition(latitude, longitude);
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        @Override
+        public void onProviderEnabled(String provider) {}
+
+        @Override
+        public void onProviderDisabled(String provider) {}
+    };
+
+
+
+    // Permission listener ------------------------------------------------------------------------
+
+    @Override
+    public void onPermissionGranted() {
+        if (mPermissionHandler.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                mPermissionHandler.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+        }
+    }
+
+    @Override
+    public void onPermissionDenied() {}
+
+    @Override
+    public void onShowRequestPermissionRationale() {
+        Bundle permissionRationaleDialog = new Bundle();
+        permissionRationaleDialog.putString("title", "Foo");
+        permissionRationaleDialog.putString("message", "Bar");
+        permissionRationaleDialog.putString("positiveButton", "FooBar");
+
+        // TODO: use setArguments instead
+        DialogFragment explanationDialog = PermissionExplanationDialogFragment.newInstance(permissionRationaleDialog);
+        explanationDialog.show(this.getFragmentManager(), "tag");
+    }
+
+
+
+    // Activity lifecycle -------------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,16 +238,25 @@ public class MainActivity extends AppCompatActivity implements
         mRunChronometer = (Chronometer) findViewById(R.id.chronometer);
 
         mCurrentActivityImage = (ImageView) findViewById(R.id.img_current_activity);
-
-        // mNoInternetErrorTextView = (TextView) findViewById(R.id.tv_no_internet);
-
-        mDb = new RunDbHelper(this).getWritableDatabase();
+        // MainActivityPresenter needs the database to get the DAO interfaces
+//        presenter.setDao(JnoggingDatabase.getInstance(getBaseContext()));
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addOnConnectionFailedListener(this)
                 .addApi(ActivityRecognition.API)
                 .build();
+
+        mPermissionHandler.handle(
+                new String[] {
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                },
+                new int[] {
+                        Constants.PermissionsRequestCode.PERMISSION_ACCESS_FINE_LOCATION,
+                        Constants.PermissionsRequestCode.PERMISSION_ACCESS_COARSE_LOCATION
+                }
+        );
 
         // TODO: Set base produce errors on Chronometer widget.
         if (savedInstanceState != null) {
@@ -200,9 +270,14 @@ public class MainActivity extends AppCompatActivity implements
             if (savedInstanceState.containsKey(IS_RUNNING_STATE_KEY)) {
                 IS_CHRONOMETER_COUNTING = savedInstanceState.getBoolean(IS_RUNNING_STATE_KEY, false);
                 if (IS_CHRONOMETER_COUNTING)
-                    startRunning(true);
+                    presenter.startRunning(true);
             }
+        } else {
+            mStopButton.setEnabled(false);
+            mStopButton.setAlpha(.5f);
         }
+
+        presenter.onCreate();
     }
 
 
@@ -211,12 +286,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         // Google Api Clients is connected after the activity calls onStart()
         startActivityRecognition();
+
+        presenter.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         if (mBoundToActivityRecognitionService) {
             if (mActivityRecognitionService != null)
                 mActivityRecognitionService.unregisterListener(this);
@@ -224,8 +300,16 @@ public class MainActivity extends AppCompatActivity implements
             unbindService(mServiceConnection);
             mBoundToActivityRecognitionService = false;
         }
+
+        presenter.onPause();
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        JnoggingDatabase.destroyInstance();
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -248,14 +332,23 @@ public class MainActivity extends AppCompatActivity implements
         switch (viewId) {
             case R.id.btn_start:
                 if (!IS_CHRONOMETER_COUNTING) {
-                    startRunning(false);
+                    presenter.startRunning(false);
+//                    startRunning(false);
                 } else {
-                    stopRunning();
+                    if (mPermissionHandler.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                            mPermissionHandler.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        Location endingLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        presenter.setEndingPosition(endingLocation.getLatitude(), endingLocation.getLongitude());
+                    }
+                    presenter.stopRunning(mRunChronometer.getBase());
+//                    stopRunning();
                 }
                 break;
             case R.id.btn_stop:
                 mRunChronometer.stop();
-                stopRunning();
+                presenter.stopRunning(mRunChronometer.getBase());
+//                stopRunning();
                 break;
             default:
                 break;
@@ -265,47 +358,28 @@ public class MainActivity extends AppCompatActivity implements
 
     // App Logic ------------------------------------------------------------------------------
 
-    private void stopRunning() {
+    @Override
+    public void changeToStopRunning() {
         mRunChronometer.stop();
 
-        IS_CHRONOMETER_COUNTING = false;
         mStopButton.setEnabled(false);
+        mStopButton.setAlpha(.5f);
         mStartButton.setText(getString(R.string.start_run));
 
-        // Toast.makeText(this, "ID Run : " + String.valueOf(addNewRun()) + ". Time spent running : " + String.valueOf(getTimeRan()) + "ms.", Toast.LENGTH_LONG).show();
+        IS_CHRONOMETER_COUNTING = false;
     }
 
-
-    private void startRunning(boolean resumeRunning) {
-        if (!resumeRunning) {
+    @Override
+    public void changeToRunning(boolean resumeRunning) {
+        if (!resumeRunning)
             mRunChronometer.setBase(SystemClock.elapsedRealtime());
-        }
         mRunChronometer.start();
 
         mStopButton.setEnabled(true);
+        mStopButton.setAlpha(1);
+
         mStartButton.setText(getString(R.string.pause_run));
         IS_CHRONOMETER_COUNTING = true;
-    }
-
-
-    // TODO: TMP. Get the distance and then calculate the speed
-    private long addNewRun() {
-        DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(RunContract.RunsEntry.COLUMN_DISTANCE, 5);
-        contentValues.put(RunContract.RunsEntry.COLUMN_START_TIME, dateFormat.format(new Date()));
-        contentValues.put(RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING, ((getTimeRan() / 1000) / 60));
-        contentValues.put(RunContract.RunsEntry.COLUMN_SPEED, 10);
-        return mDb.insert(RunContract.RunsEntry.TABLE_NAME, null, contentValues);
-    }
-
-
-
-
-
-    private long getTimeRan() {
-        return SystemClock.elapsedRealtime() - mRunChronometer.getBase();
     }
 
 

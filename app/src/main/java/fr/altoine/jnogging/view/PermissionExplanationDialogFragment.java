@@ -22,12 +22,20 @@ public class PermissionExplanationDialogFragment extends DialogFragment {
 
     PermissionExplanationDialogFragmentListener mListener;
 
+    public static PermissionExplanationDialogFragment newInstance(Bundle args) {
+        PermissionExplanationDialogFragment fragment = new PermissionExplanationDialogFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("title")
-                .setMessage("foo")
-                .setPositiveButton("foo", new DialogInterface.OnClickListener() {
+
+        builder.setTitle(getArguments().getString("title"))
+                .setMessage(getArguments().getString("message"))
+                .setPositiveButton(getArguments().getString("positiveButton"), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mListener.onDialogPositiveClick(PermissionExplanationDialogFragment.this);

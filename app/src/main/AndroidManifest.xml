@@ -32,13 +32,12 @@
         <activity android:name=".view.DetailRunActivity.DetailRunActivity" />
         <activity android:name=".view.HistoryActivity.HistoryActivity"/>
 
-        <service android:name=".view.ActivityRecognitionService"
+        <service android:name=".presenter.ActivityRecognitionService"
             android:exported="false"/>
 
         <provider
             android:authorities="fr.altoine.jnogging"
-            android:name=".model.data.RunContentProvider"
-            android:exported="false"/>
+            android:name=".model.data.RunContentProvider"/>
     </application>
 
 </manifest>

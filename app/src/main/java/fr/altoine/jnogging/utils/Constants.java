@@ -9,6 +9,7 @@ import fr.altoine.jnogging.model.data.RunContract;
 public class Constants {
     private Constants() {}
 
+    public static final String DATABASE_NAME = "jnogging.db";
     public static final String DATE_FORMAT = "YYYY-MM-DD HH:MM:SS";
     public static final long CHECK_USER_ACTIVITY_INTERVAL = 5000;
 
@@ -19,6 +20,11 @@ public class Constants {
                 RunContract.RunsEntry.COLUMN_START_TIME,
                 RunContract.RunsEntry.COLUMN_TIME_SPENT_RUNNING,
     };
+
+    public class PermissionsRequestCode {
+        public final static int PERMISSION_ACCESS_FINE_LOCATION = 452;
+        public final static int PERMISSION_ACCESS_COARSE_LOCATION = 453;
+    }
 
     public class Keys {
         // Unique tag for the error dialog fragment

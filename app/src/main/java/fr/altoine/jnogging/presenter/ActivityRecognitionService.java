@@ -1,4 +1,4 @@
-package fr.altoine.jnogging.view;
+package fr.altoine.jnogging.presenter;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import com.google.android.gms.location.DetectedActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.altoine.jnogging.view.IActivityRecognitionListener;
 
 /**
  * Created by soulierantoine on 29/06/7517.

@@ -1,53 +1,56 @@
 package fr.altoine.jnogging.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.google.android.gms.location.DetectedActivity;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Created by soulierantoine on 21/07/2017.
  */
 
+@Entity(tableName = "steps",
+        foreignKeys = @ForeignKey(
+                entity = Run.class,
+                parentColumns = "id",
+                childColumns = "run_id",
+                onDelete = CASCADE
+        )
+)
 public class Step {
+    @PrimaryKey
+    private int id;
+
+    @ColumnInfo(name = "run_id")
+    private int runId;
+
     private double longitude;
     private double latitude;
     private Date time;
     private DetectedActivity activity;
 
-    public Step() {}
+    /* public Step() {}
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
     public Date getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
-    }
-
     public DetectedActivity getActivity() {
         return activity;
-    }
-
-    public void setActivity(DetectedActivity activity) {
-        this.activity = activity;
     }
 
     public Map<String, Object> toMap() {
@@ -58,5 +61,5 @@ public class Step {
         map.put("activity", getActivity());
 
         return map;
-    }
+    } */
 }
